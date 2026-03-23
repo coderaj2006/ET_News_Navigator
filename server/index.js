@@ -23,8 +23,8 @@ app.get('/health', (req, res) => {
   res.send('Server is running');
 });
 
-// Endpoint to fetch the latest news from dataAgent
-app.get('/api/news', async (req, res) => {
+// Endpoint to fetch the test news from dataAgent
+app.get('/test-news', async (req, res) => {
   try {
     const news = await fetchETNews();
     res.json(news);
