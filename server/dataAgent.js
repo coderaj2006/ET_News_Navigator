@@ -11,8 +11,9 @@ async function fetchETNews() {
     return feed.items.map((article) => ({
       title: article.title,
       link: article.link,
-      pubDate: article.pubDate,
-      contentSnippet: article.contentSnippet
+      date: article.pubDate,
+      content: article.contentSnippet,
+      publisher: 'Economic Times'
     }));
   } catch (error) {
     console.error('Error fetching ET News RSS feed:', error);
