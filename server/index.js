@@ -1,29 +1,36 @@
+// 1. Configuration & Imports
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 
-// Import the specific agents
-const fetchETNews = require('./dataAgent');
+// Import your custom utilities/agents
+const fetchETNews = require('./dataAgent'); // Legacy/Test agent
 const SynthesisAgent = require('./synthesisAgent');
 const InteractiveAgent = require('./interactiveAgent');
 
+// Import the new Data Lead pipeline
+const { getEtNewsForLLM } = require('./utils/fetchNews');
+const { generateBriefing } = require('./utils/llmService');
+
+// 2. Initialize App & Middleware
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors());
+app.use(cors()); // Allows your React frontend (port 3000) to talk to this server
 app.use(express.json());
 
-// Initialize remaining class-based agents
+// Initialize class-based agents
 const synthesisAgent = new SynthesisAgent();
 const interactiveAgent = new InteractiveAgent();
 
-// Test Route
+// 3. Routes
+
+// Health Check
 app.get('/health', (req, res) => {
-  res.send('Server is running');
+  res.send('Server is running and healthy');
 });
 
-// Endpoint to fetch the test news from dataAgent
+// Original Test Endpoint
 app.get('/test-news', async (req, res) => {
   try {
     const news = await fetchETNews();
@@ -33,20 +40,31 @@ app.get('/test-news', async (req, res) => {
   }
 });
 
-// Start the server
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
-
-const { getEtNewsForLLM } = require('./utils/fetchNews');
-const { generateBriefing } = require('./utils/llmService');
-
+/**
+ * MAIN HACKATHON ENDPOINT: News Navigator Briefing
+ * This triggers the fetcher -> cleaner -> LLM chain
+ */
 app.get('/api/news-briefing', async (req, res) => {
     try {
-        const cleanData = await getEtNewsForLLM(); // Fetches & Cleans
-        const summary = await generateBriefing(cleanData); // AI Summarizes
-        res.json({ success: true, briefing: summary });
+        console.log("Starting Intelligence Briefing generation...");
+        const cleanData = await getEtNewsForLLM(); // Fetches from ET RSS & Cleans
+        const summary = await generateBriefing(cleanData); // Sends to Gemini/AI
+        
+        res.json({ 
+            success: true, 
+            briefing: summary 
+        });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error("Briefing Error:", error.message);
+        res.status(500).json({ 
+            success: false, 
+            error: error.message 
+        });
     }
+});
+
+// 4. Start Server
+app.listen(PORT, () => {
+    console.log(`🚀 News Navigator Server is running on http://localhost:${PORT}`);
+    console.log(`📡 Health check available at http://localhost:${PORT}/health`);
 });

@@ -59,3 +59,10 @@ const rawArticles = [
 const finalPayload = prepareForLLM(rawArticles);
 console.log("\n--- BUNDLED PAYLOAD ---\n");
 console.log(finalPayload);
+
+// ... (your cleaning logic and prepareForLLM function code here) ...
+
+// THIS IS THE CRITICAL PART:
+module.exports = { 
+    prepareForLLM 
+};

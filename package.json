@@ -1,0 +1,14 @@
+{
+  "name": "et-news-navigator",
+  "version": "1.0.0",
+  "description": "Full-stack AI News Aggregator",
+  "main": "index.js",
+  "scripts": {
+    "server": "cd server && node src/index.js",
+    "client": "cd client && npm start",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

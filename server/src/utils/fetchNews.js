@@ -1,6 +1,8 @@
 // server/src/utils/fetchNews.js
+// Ensure the path is correct and you are "destructuring" the function
+const { prepareForLLM } = require('./preprocess');
 const Parser = require('rss-parser');
-const { prepareForLLM } = require('./preprocess'); // Import your cleaning script
+// const { prepareForLLM } = require('./preprocess'); // Import your cleaning script
 
 const parser = new Parser();
 const ET_FEED_URL = 'https://economictimes.indiatimes.com/rssfeedstopstories.cms';
