@@ -37,3 +37,16 @@ app.get('/test-news', async (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
+const { getEtNewsForLLM } = require('./utils/fetchNews');
+const { generateBriefing } = require('./utils/llmService');
+
+app.get('/api/news-briefing', async (req, res) => {
+    try {
+        const cleanData = await getEtNewsForLLM(); // Fetches & Cleans
+        const summary = await generateBriefing(cleanData); // AI Summarizes
+        res.json({ success: true, briefing: summary });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
