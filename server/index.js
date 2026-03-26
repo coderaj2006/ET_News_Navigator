@@ -19,23 +19,7 @@ app.use(express.json());
 const synthesisAgent = new SynthesisAgent();
 const interactiveAgent = new InteractiveAgent();
 
-// Test Route
-app.get('/health', (req, res) => {
-  res.send('Server is running');
-});
 
-// Endpoint to fetch the test news from dataAgent
-app.get('/test-news', async (req, res) => {
-  try {
-    const news = await getEtNewsForLLM();
-    if (!news || news.length === 0) {
-      return res.json({ message: 'Service Currently Updating' });
-    }
-    res.json(news);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch news' });
-  }
-});
 
 // POST endpoint for generating briefing
 app.post('/api/briefing', async (req, res) => {
@@ -59,7 +43,10 @@ app.post('/api/briefing', async (req, res) => {
     // Push context to the Interactive Agent for future questions
     interactiveAgent.addContext(briefing);
     
-    res.json({ briefing });
+    res.json({ 
+      ai_summary: briefing,
+      original_headlines: top3Articles.map(article => article.title)
+    });
   } catch (error) {
     console.error('Error generating briefing in /api/briefing:', error);
     res.status(500).json({ error: 'Failed to generate briefing' });

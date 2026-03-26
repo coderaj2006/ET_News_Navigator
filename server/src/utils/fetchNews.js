@@ -1,5 +1,7 @@
 // server/src/utils/fetchNews.js
 const Parser = require('rss-parser');
+const axios = require('axios');
+const cheerio = require('cheerio');
 const { prepareForLLM } = require('./preprocess'); // Import your cleaning script
 
 const parser = new Parser();
@@ -13,14 +15,44 @@ async function getEtNewsForLLM() {
         console.log("Fetching latest news from Economic Times...");
         const feed = await parser.parseURL(ET_FEED_URL);
 
-        // Take the top 3 articles
-        const topArticles = feed.items.slice(0, 3).map(item => ({
-            title: item.title,
-            content: item.contentSnippet || item.content || "No content available",
-            date: item.pubDate || new Date().toISOString()
-        }));
+        const topItems = feed.items.slice(0, 3);
+        const topArticles = [];
 
-        console.log(`Fetched ${topArticles.length} articles.`);
+        for (const item of topItems) {
+            let fullContent = item.contentSnippet || item.content || "No content available";
+            
+            if (item.link) {
+                try {
+                    const response = await axios.get(item.link);
+                    const $ = cheerio.load(response.data);
+                    
+                    let extractedText = '';
+                    $('.artText').each((i, el) => {
+                        extractedText += $(el).text() + '\n';
+                    });
+                    
+                    if (!extractedText.trim()) {
+                        $('p').each((i, el) => {
+                            extractedText += $(el).text() + '\n';
+                        });
+                    }
+                    
+                    if (extractedText.trim()) {
+                        fullContent = extractedText.trim();
+                    }
+                } catch (err) {
+                    console.error(`Failed to scrape article ${item.link}:`, err.message);
+                }
+            }
+
+            topArticles.push({
+                title: item.title,
+                content: fullContent,
+                date: item.pubDate || new Date().toISOString()
+            });
+        }
+
+        console.log(`Fetched and scraped ${topArticles.length} articles.`);
 
         // Use your existing cleaning and bundling logic
         const bundledData = prepareForLLM(topArticles);
