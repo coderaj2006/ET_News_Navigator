@@ -41,7 +41,6 @@ async function getEtNewsForWorker() {
         const topArticles = [];
 
         for (const item of topItems) {
-            console.log(`[newsWorker] Scraping article text: ${item.title}`);
             try {
                 const response = await axios.get(item.link);
                 const $ = cheerio.load(response.data);

@@ -133,7 +133,7 @@ app.post('/api/briefing', authMiddleware, async (req, res) => {
 const portfinder = require('portfinder');
 
 // Start the server with dynamic resilient port locking
-portfinder.basePort = 5001;
+portfinder.basePort = parseInt(process.env.PORT) || 5001;
 portfinder.getPort((err, port) => {
     if (err) {
         console.error("Fatal: Intelligence Engine deployment failed. No network ports discovered.");
