@@ -15,7 +15,7 @@ async function getEtNewsForLLM() {
         console.log("Fetching latest news from Economic Times...");
         const feed = await parser.parseURL(ET_FEED_URL);
 
-        const topItems = feed.items.slice(0, 3);
+        const topItems = feed.items.slice(0, 8);
         const topArticles = [];
 
         for (const item of topItems) {
