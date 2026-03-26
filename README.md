@@ -102,8 +102,9 @@ sequenceDiagram
 ## 🤝 Team & Contributions
 
 This project was engineered for a high-intensity Hackathon by a dedicated team pushing the frontier of Agentic workflows:
-- **Lead Architect / Backend Engineer**: [Your Name/Role]
-- **Frontend / UI Design**: [Your Name/Role]
-- **AI / Pipeline Engineer**: [Your Name/Role]
+- **Integration & PM**: [Aagam/https://github.com/coderaj2006]
+- **Backend & AI**: [Anukrat/https://github.com/anukratxo]
+- **Data & Logic**: [Pallvi/https://github.com/Pallvi2007]
+- **Frontend & UI Design**: [Yashika/https://github.com/YashikaKhatri06]
 
 *Code submissions requires prior approval on the `main` branch.*
