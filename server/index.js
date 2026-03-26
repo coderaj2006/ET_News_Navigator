@@ -1,4 +1,5 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 const express = require('express');
 const cors = require('cors');
 
@@ -33,7 +34,45 @@ app.get('/test-news', async (req, res) => {
   }
 });
 
-// Start the server
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+// POST endpoint for generating briefing
+app.post('/api/briefing', async (req, res) => {
+  try {
+    const news = await fetchETNews();
+    
+    // Ensure we have at least 3 articles for the SynthesisAgent
+    if (!news || news.length < 3) {
+      return res.status(400).json({ error: 'Not enough articles to generate a briefing.' });
+    }
+    
+    const top3Articles = news.slice(0, 3);
+    
+    // Note: Calling generateBriefing as requested (the method is named generateBriefing, not summarize)
+    const briefing = await synthesisAgent.generateBriefing(top3Articles);
+    
+    // Push context to the Interactive Agent for future questions
+    interactiveAgent.addContext(briefing);
+    
+    res.json({ briefing });
+  } catch (error) {
+    console.error('Error generating briefing in /api/briefing:', error);
+    res.status(500).json({ error: 'Failed to generate briefing' });
+  }
 });
+
+// Start the server with dynamic port allocation
+const startServer = (port) => {
+  const server = app.listen(port, () => {
+    console.log(`Server is running on port ${server.address().port}`);
+  });
+
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.warn(`Port ${port} is already in use. Trying port ${port + 1}...`);
+      startServer(port + 1);
+    } else {
+      console.error('Server error:', err);
+    }
+  });
+};
+
+startServer(PORT);

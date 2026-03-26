@@ -193,12 +193,23 @@ ${article.content}`;
 
 ${payloadText}`;
 
-    try {
-      const result = await this.model.generateContent(prompt);
-      return result.response.text();
-    } catch (error) {
-      console.error("Error generating briefing:", error);
-      throw error;
+    const maxRetries = 3;
+    let attempt = 0;
+
+    while (attempt < maxRetries) {
+      try {
+        const result = await this.model.generateContent(prompt);
+        return result.response.text();
+      } catch (error) {
+        attempt++;
+        if (attempt >= maxRetries) {
+          console.error(`Error generating briefing after ${maxRetries} attempts:`, error);
+          throw error;
+        }
+        console.log("Gemini busy, retrying...");
+        const delay = 2000 * Math.pow(2, attempt - 1); // 2s, 4s delay
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
     }
   }
 }
