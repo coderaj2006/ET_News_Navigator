@@ -4,7 +4,7 @@ const express = require('express');
 const cors = require('cors');
 
 // Import the specific agents
-const fetchETNews = require('./dataAgent');
+const getEtNewsForLLM = require('./src/utils/fetchNews');
 const SynthesisAgent = require('./synthesisAgent');
 const InteractiveAgent = require('./interactiveAgent');
 
@@ -27,7 +27,10 @@ app.get('/health', (req, res) => {
 // Endpoint to fetch the test news from dataAgent
 app.get('/test-news', async (req, res) => {
   try {
-    const news = await fetchETNews();
+    const news = await getEtNewsForLLM();
+    if (!news || news.length === 0) {
+      return res.json({ message: 'Service Currently Updating' });
+    }
     res.json(news);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch news' });
@@ -37,10 +40,14 @@ app.get('/test-news', async (req, res) => {
 // POST endpoint for generating briefing
 app.post('/api/briefing', async (req, res) => {
   try {
-    const news = await fetchETNews();
+    const news = await getEtNewsForLLM();
+    
+    if (!news || news.length === 0) {
+      return res.json({ message: 'Service Currently Updating' });
+    }
     
     // Ensure we have at least 3 articles for the SynthesisAgent
-    if (!news || news.length < 3) {
+    if (news.length < 3) {
       return res.status(400).json({ error: 'Not enough articles to generate a briefing.' });
     }
     

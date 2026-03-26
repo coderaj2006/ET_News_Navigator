@@ -16,7 +16,8 @@ async function getEtNewsForLLM() {
         // Take the top 3 articles
         const topArticles = feed.items.slice(0, 3).map(item => ({
             title: item.title,
-            content: item.contentSnippet || item.content || "No content available"
+            content: item.contentSnippet || item.content || "No content available",
+            date: item.pubDate || new Date().toISOString()
         }));
 
         console.log(`Fetched ${topArticles.length} articles.`);
@@ -25,13 +26,12 @@ async function getEtNewsForLLM() {
         const bundledData = prepareForLLM(topArticles);
 
         console.log("\n--- READY FOR LLM ---");
-        console.log(bundledData);
         
         return bundledData;
     } catch (error) {
         console.error("Error fetching ET news:", error.message);
+        return []; // Return empty array on failure
     }
 }
 
-// Run it to test
-getEtNewsForLLM();
+module.exports = getEtNewsForLLM;
